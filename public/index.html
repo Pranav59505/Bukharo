@@ -2,13 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bukharo 🃏</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<!-- ZOOM CONTROLS (fixed, never scaled) -->
+<div id="zoom-controls">
+  <button id="zoom-out" onclick="zoomBy(-0.1)" aria-label="Zoom out">−</button>
+  <button id="zoom-level" onclick="zoomReset()" title="Reset zoom">100%</button>
+  <button id="zoom-in" onclick="zoomBy(0.1)" aria-label="Zoom in">+</button>
+</div>
+
+<!-- ROTATE-TO-LANDSCAPE HINT (portrait only, dismissible) -->
+<div id="portrait-hint">
+  <span class="ph-text">🔄 Rotate to <b>landscape</b> for the full table view</span>
+  <button class="ph-dismiss" onclick="dismissPortraitHint()" aria-label="Dismiss">✕</button>
+</div>
+
+<!-- SCALED APP STAGE -->
+<div id="viewport">
+<div id="stage">
 
 <!-- LOBBY SCREEN -->
 <div id="screen-lobby" class="screen active">
@@ -190,6 +207,9 @@
   <!-- NOTIFICATION TOAST -->
   <div id="toast" class="toast"></div>
 </div>
+
+</div><!-- /#stage -->
+</div><!-- /#viewport -->
 
 <script src="/js/app.js"></script>
 </body>

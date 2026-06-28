@@ -34,21 +34,105 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--ui-bg); color: var(--ivory); }
 
-/* ── SCREENS ──
-   Each screen is a fixed-size canvas (design-w × design-h) centered in the
-   viewport and uniformly scaled, so the layout is pixel-identical on every
-   device — just bigger or smaller. No reflow, no scrolling. */
+/* ── SCALED STAGE ──
+   #viewport is a fixed, scrollable area. #stage is sized to the scaled canvas
+   and centered via flex auto-margins (scroll-safe when zoomed in). Each screen
+   is a fixed design-w × design-h canvas scaled from its top-left to fill the
+   stage, so the layout is pixel-identical on every device — just bigger or
+   smaller. Zooming in enlarges #stage and lets you pan by scrolling. */
+#viewport {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  display: flex;
+  background: var(--ui-bg);
+  -webkit-overflow-scrolling: touch;
+}
+#stage {
+  position: relative;
+  flex: none;
+  margin: auto; /* centers both axes, stays scrollable when larger than viewport */
+  width: calc(var(--design-w) * var(--app-scale));
+  height: calc(var(--design-h) * var(--app-scale));
+  overflow: hidden; /* clip the un-transformed canvas so it doesn't add phantom scroll */
+}
 .screen {
   display: none;
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: var(--design-w);
   height: var(--design-h);
-  transform: translate(-50%, -50%) scale(var(--app-scale));
-  transform-origin: center center;
+  transform: scale(var(--app-scale));
+  transform-origin: top left;
 }
 .screen.active { display: flex; flex-direction: column; }
+
+/* ── ZOOM CONTROLS ── */
+#zoom-controls {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3000;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+#zoom-controls button {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: var(--ivory);
+  font-size: 16px;
+  font-weight: 700;
+  width: 34px;
+  height: 30px;
+  border-radius: 7px;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+}
+#zoom-controls #zoom-level { width: 50px; font-size: 12px; }
+#zoom-controls button:hover { background: rgba(255,255,255,0.18); }
+#zoom-controls button:active { background: rgba(255,255,255,0.28); }
+
+/* ── ROTATE-TO-LANDSCAPE HINT (portrait only) ── */
+#portrait-hint { display: none; }
+@media (orientation: portrait) {
+  #portrait-hint:not(.dismissed) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3500;
+    max-width: 94vw;
+    padding: 8px 12px;
+    background: rgba(201,162,39,0.96);
+    color: #1a1a1a;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+}
+#portrait-hint .ph-dismiss {
+  flex: none;
+  background: rgba(0,0,0,0.15);
+  border: none;
+  color: #1a1a1a;
+  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
 
 /* ── LOBBY ── */
 .screen#screen-lobby { align-items: center; justify-content: center; overflow: hidden; }

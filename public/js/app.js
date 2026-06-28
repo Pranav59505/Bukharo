@@ -14,18 +14,48 @@ let handSorted = false;
 
 const SUIT_COLOR = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
 
-// ── RESPONSIVE SCALING ──
+// ── RESPONSIVE SCALING + ZOOM ──
 // The app is designed at a fixed canvas size and scaled uniformly to fit the
 // device, so every screen shows the identical laptop layout (just bigger or
-// smaller). Keep these in sync with --design-w / --design-h in style.css.
+// smaller). userZoom is an extra multiplier the player controls; zooming in
+// past the fit makes the stage larger than the screen so it can be panned.
+// Keep DESIGN_W/H in sync with --design-w / --design-h in style.css.
 const DESIGN_W = 1280;
 const DESIGN_H = 800;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 3;
+let userZoom = 1;
+
 function fitStage() {
-  const scale = Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H);
-  document.documentElement.style.setProperty('--app-scale', scale);
+  const fit = Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H);
+  document.documentElement.style.setProperty('--app-scale', fit * userZoom);
+  const lvl = document.getElementById('zoom-level');
+  if (lvl) lvl.textContent = Math.round(userZoom * 100) + '%';
 }
+
+// Adjust zoom by a delta (clamped), then re-fit.
+function zoomBy(delta) {
+  userZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, +(userZoom + delta).toFixed(2)));
+  fitStage();
+}
+function zoomReset() {
+  userZoom = 1;
+  fitStage();
+}
+
+function dismissPortraitHint() {
+  const hint = document.getElementById('portrait-hint');
+  if (hint) hint.classList.add('dismissed');
+}
+
 window.addEventListener('resize', fitStage);
 window.addEventListener('orientationchange', fitStage);
+// Ctrl/Cmd + scroll wheel to zoom on desktop.
+window.addEventListener('wheel', (e) => {
+  if (!e.ctrlKey && !e.metaKey) return;
+  e.preventDefault();
+  zoomBy(e.deltaY < 0 ? 0.1 : -0.1);
+}, { passive: false });
 // Run as early as possible and again after full load (fonts/layout settle).
 fitStage();
 document.addEventListener('DOMContentLoaded', fitStage);
