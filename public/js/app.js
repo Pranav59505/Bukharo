@@ -14,8 +14,25 @@ let handSorted = false;
 
 const SUIT_COLOR = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
 
+// ── RESPONSIVE SCALING ──
+// The app is designed at a fixed canvas size and scaled uniformly to fit the
+// device, so every screen shows the identical laptop layout (just bigger or
+// smaller). Keep these in sync with --design-w / --design-h in style.css.
+const DESIGN_W = 1280;
+const DESIGN_H = 800;
+function fitStage() {
+  const scale = Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H);
+  document.documentElement.style.setProperty('--app-scale', scale);
+}
+window.addEventListener('resize', fitStage);
+window.addEventListener('orientationchange', fitStage);
+// Run as early as possible and again after full load (fonts/layout settle).
+fitStage();
+document.addEventListener('DOMContentLoaded', fitStage);
+
 // ── INIT ──
 window.onload = () => {
+  fitStage();
   // Check URL for room code
   const urlParams = new URLSearchParams(window.location.search);
   const roomCode = urlParams.get('room');

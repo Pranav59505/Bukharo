@@ -23,17 +23,35 @@
   --card-w: 52px;
   --card-h: 78px;
   --card-r: 6px;
+  /* Fixed design canvas — the whole app is scaled to fit the device so every
+     screen sees the exact same laptop layout (set in JS via --app-scale).
+     Keep these in sync with DESIGN_W / DESIGN_H in app.js. */
+  --design-w: 1280px;
+  --design-h: 800px;
+  --app-scale: 1;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--ui-bg); color: var(--ivory); }
 
-/* ── SCREENS ── */
-.screen { display: none; width: 100%; height: 100vh; height: 100dvh; }
+/* ── SCREENS ──
+   Each screen is a fixed-size canvas (design-w × design-h) centered in the
+   viewport and uniformly scaled, so the layout is pixel-identical on every
+   device — just bigger or smaller. No reflow, no scrolling. */
+.screen {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--design-w);
+  height: var(--design-h);
+  transform: translate(-50%, -50%) scale(var(--app-scale));
+  transform-origin: center center;
+}
 .screen.active { display: flex; flex-direction: column; }
 
 /* ── LOBBY ── */
-.screen#screen-lobby { align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.screen#screen-lobby { align-items: center; justify-content: center; overflow: hidden; }
 
 .lobby-bg {
   position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, #1e5c3a 0%, #0a1f12 70%);
@@ -109,7 +127,7 @@ input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
 #start-section { text-align: center; }
 
 /* ── GAME SCREEN ── */
-#screen-game { display: none; flex-direction: column; background: var(--felt); height: 100vh; height: 100dvh; overflow: hidden; }
+#screen-game { display: none; flex-direction: column; background: var(--felt); height: 100%; overflow: hidden; }
 #screen-game.active { display: flex; }
 
 .game-topbar { background: var(--felt-dark); border-bottom: 1px solid rgba(201,162,39,0.2); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; height: 48px; gap: 12px; }
@@ -358,25 +376,7 @@ input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
 *::-webkit-scrollbar { width: 4px; height: 4px; }
 *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-  :root { --card-w: 44px; --card-h: 66px; }
-  .sequences-panel { width: 160px; min-width: 140px; }
-  .chat-panel { display: none; }
-  .panel { min-width: 240px; padding: 24px; }
-  .lobby-panels { flex-direction: column; }
-  .panel-divider { flex-direction: row; padding: 12px 0; justify-content: center; }
-  /* Guarantee the hand stays visible at the bottom: cap its height and let
-     its cards scroll horizontally, while the play area takes the rest. */
-  .hand-panel { max-height: 40vh; overflow-y: auto; }
-  .hand-cards { min-height: 78px; }
-  .hand-header { margin-bottom: 6px; }
-}
-
-@media (max-width: 480px) {
-  :root { --card-w: 38px; --card-h: 58px; }
-  .sequences-panel { width: 130px; min-width: 110px; }
-  .card-rank-top, .card-rank-bot { font-size: 10px; }
-  .card-suit-mid { font-size: 18px; }
-  .btn-action { padding: 8px 12px; font-size: 12px; }
-}
+/* ── RESPONSIVE ──
+   The whole app is scaled to fit via the fixed design canvas (see .screen and
+   fitStage() in app.js), so the layout is identical on every device and we do
+   NOT reflow at breakpoints. */
