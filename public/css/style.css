@@ -29,7 +29,7 @@
 html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--ui-bg); color: var(--ivory); }
 
 /* ── SCREENS ── */
-.screen { display: none; width: 100%; height: 100vh; }
+.screen { display: none; width: 100%; height: 100vh; height: 100dvh; }
 .screen.active { display: flex; flex-direction: column; }
 
 /* ── LOBBY ── */
@@ -109,7 +109,7 @@ input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
 #start-section { text-align: center; }
 
 /* ── GAME SCREEN ── */
-#screen-game { display: none; flex-direction: column; background: var(--felt); height: 100vh; overflow: hidden; }
+#screen-game { display: none; flex-direction: column; background: var(--felt); height: 100vh; height: 100dvh; overflow: hidden; }
 #screen-game.active { display: flex; }
 
 .game-topbar { background: var(--felt-dark); border-bottom: 1px solid rgba(201,162,39,0.2); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; height: 48px; gap: 12px; }
@@ -223,7 +223,7 @@ input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
 .seq-cards-col .card.seq-card:hover { transform: none; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
 
 /* CENTER PANEL */
-.center-panel { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 12px; gap: 8px; overflow: hidden; min-width: 0; }
+.center-panel { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 12px; gap: 8px; overflow-y: auto; overflow-x: hidden; min-width: 0; min-height: 0; }
 
 .opponents-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%; }
 .opponent-chip { background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 6px 14px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -310,7 +310,7 @@ input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
 .card-mini.joker-card { background: linear-gradient(135deg, #fffde7, #fff8e1); border-color: rgba(201,162,39,0.5); }
 
 /* ── HAND ── */
-.hand-panel { background: var(--felt-dark); border-top: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; flex-shrink: 0; }
+.hand-panel { background: var(--felt-dark); border-top: 1px solid rgba(255,255,255,0.08); padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
 .hand-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 12px; opacity: 0.7; }
 .hand-actions { display: flex; gap: 6px; }
 .btn-mini { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: var(--ivory); border-radius: 6px; padding: 3px 10px; font-size: 11px; cursor: pointer; }
@@ -366,6 +366,11 @@ input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
   .panel { min-width: 240px; padding: 24px; }
   .lobby-panels { flex-direction: column; }
   .panel-divider { flex-direction: row; padding: 12px 0; justify-content: center; }
+  /* Guarantee the hand stays visible at the bottom: cap its height and let
+     its cards scroll horizontally, while the play area takes the rest. */
+  .hand-panel { max-height: 40vh; overflow-y: auto; }
+  .hand-cards { min-height: 78px; }
+  .hand-header { margin-bottom: 6px; }
 }
 
 @media (max-width: 480px) {
