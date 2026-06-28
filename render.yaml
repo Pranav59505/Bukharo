@@ -1,0 +1,15 @@
+# Render Blueprint — deploys Bukharo as a free web service.
+# On Render: New + > Blueprint, pick this repo, and it auto-configures from here.
+services:
+  - type: web
+    name: bukharo
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "20"

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Bukharo 🃏</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- LOBBY SCREEN -->
+<div id="screen-lobby" class="screen active">
+  <div class="lobby-bg">
+    <div class="card-pattern"></div>
+  </div>
+  <div class="lobby-container">
+    <div class="logo">
+      <span class="logo-b">B</span><span class="logo-rest">UKHARO</span>
+      <div class="logo-suits">♠ ♥ ♦ ♣</div>
+    </div>
+
+    <div class="lobby-panels">
+      <div class="panel" id="panel-create">
+        <h2>Create Room</h2>
+        <input id="create-name" type="text" placeholder="Your name" maxlength="16" autocomplete="off">
+        <button class="btn-primary" onclick="createRoom()">Create Game</button>
+      </div>
+      <div class="panel-divider"><span>OR</span></div>
+      <div class="panel" id="panel-join">
+        <h2>Join Room</h2>
+        <input id="join-name" type="text" placeholder="Your name" maxlength="16" autocomplete="off">
+        <input id="join-code" type="text" placeholder="Room code" maxlength="6" autocomplete="off" style="text-transform:uppercase">
+        <button class="btn-secondary" onclick="joinRoom()">Join Game</button>
+      </div>
+    </div>
+    <div id="lobby-error" class="error-msg"></div>
+  </div>
+</div>
+
+<!-- WAITING ROOM -->
+<div id="screen-waiting" class="screen">
+  <div class="waiting-container">
+    <div class="room-header">
+      <div class="room-code-display">
+        <span class="rc-label">Room Code</span>
+        <span id="display-room-code" class="rc-value">------</span>
+        <button class="btn-copy" onclick="copyRoomLink()">📋 Copy Link</button>
+      </div>
+    </div>
+    <h2 class="waiting-title">Players in Room</h2>
+    <div id="player-list" class="player-list"></div>
+    <div class="team-preview">
+      <div class="tp-team">
+        <div class="tp-label team-a">Team A</div>
+        <div id="team-a-preview" class="tp-members"></div>
+      </div>
+      <div class="tp-team">
+        <div class="tp-label team-b">Team B</div>
+        <div id="team-b-preview" class="tp-members"></div>
+      </div>
+    </div>
+    <div id="start-section">
+      <p class="waiting-hint" id="waiting-hint">Waiting for more players...</p>
+      <button class="btn-primary" id="btn-start" style="display:none" onclick="startGame()">Start Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="screen-game" class="screen">
+  <!-- TOP BAR -->
+  <div class="game-topbar">
+    <div class="tb-room">
+      <span class="tb-code" id="tb-room-code">Room: ----</span>
+      <span class="tb-piles">
+        🂠 <span id="tb-closed-count">0</span>
+        &nbsp;|&nbsp;
+        🃁 <span id="tb-bukharas">0</span> bukharas
+      </span>
+    </div>
+    <div class="tb-turn" id="tb-turn">...</div>
+    <button class="btn-chat-toggle" onclick="toggleChat()">💬</button>
+  </div>
+
+  <!-- MAIN GAME AREA -->
+  <div class="game-layout">
+
+    <!-- SEQUENCES AREA (left) -->
+    <div class="sequences-panel">
+      <div class="seq-team-block" id="seq-team-a">
+        <div class="seq-team-label team-a">Team A Sequences</div>
+        <div class="seq-list" id="seq-list-a"></div>
+      </div>
+      <div class="seq-team-block" id="seq-team-b">
+        <div class="seq-team-label team-b">Team B Sequences</div>
+        <div class="seq-list" id="seq-list-b"></div>
+      </div>
+    </div>
+
+    <!-- CENTER AREA -->
+    <div class="center-panel">
+
+      <!-- Other players -->
+      <div class="opponents-row" id="opponents-row"></div>
+
+      <!-- Piles -->
+      <div class="piles-area">
+        <div class="pile-block">
+          <div class="pile-label">Closed Pile</div>
+          <div class="card-back pile-card" id="closed-pile" onclick="drawClosed()">
+            <div class="card-back-inner">🂠</div>
+            <div class="pile-count" id="closed-count">0</div>
+          </div>
+        </div>
+
+        <div class="pile-block">
+          <div class="pile-label">Open Pile</div>
+          <div class="open-pile-wrapper" id="open-pile-wrapper">
+            <div id="open-pile-cards" class="open-pile-stack" onclick="takeOpenPile()"></div>
+            <div class="pile-count" id="open-count">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar" id="action-bar">
+        <button class="btn-action" id="btn-open-seq" onclick="openNewSequence()" disabled>
+          ➕ Open Sequence
+        </button>
+        <button class="btn-action" id="btn-discard" onclick="discardSelected(false)" disabled>
+          🗑️ Discard
+        </button>
+        <button class="btn-action btn-put" id="btn-put" onclick="discardSelected(true)" disabled>
+          🔁 PUT
+        </button>
+      </div>
+
+      <!-- Selection hint -->
+      <div id="selection-hint" class="selection-hint">Select cards from your hand to play</div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel" id="chat-panel">
+      <div class="chat-header">Chat</div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" placeholder="Type message..." maxlength="100"
+               onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY HAND -->
+  <div class="hand-panel">
+    <div class="hand-header">
+      <span>Your Hand (<span id="hand-count">0</span> cards)</span>
+      <div class="hand-actions">
+        <button class="btn-mini" onclick="selectAll()">All</button>
+        <button class="btn-mini" onclick="clearSelection()">Clear</button>
+        <button class="btn-mini" onclick="sortHand()">Sort</button>
+      </div>
+    </div>
+    <div class="hand-cards" id="hand-cards"></div>
+  </div>
+
+  <!-- ADD TO SEQUENCE MODAL -->
+  <div id="modal-add" class="modal-overlay" style="display:none">
+    <div class="modal">
+      <h3>Add to Sequence</h3>
+      <p>Adding <span id="modal-card-name"></span> to:</p>
+      <div id="modal-seq-list" class="modal-seq-list"></div>
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER MODAL -->
+  <div id="modal-gameover" class="modal-overlay" style="display:none">
+    <div class="modal modal-gameover">
+      <div class="go-emoji">🏆</div>
+      <h2 id="go-title">Game Over!</h2>
+      <p id="go-desc"></p>
+      <button class="btn-primary" id="btn-restart" style="display:none" onclick="restartGame()">Play Again</button>
+      <button class="btn-secondary" onclick="closeGameOver()">Close</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="toast"></div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
